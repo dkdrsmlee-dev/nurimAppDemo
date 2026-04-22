@@ -22,6 +22,7 @@ flutter run
 ```
 
 기본 개발 서버 주소는 `http://192.168.0.157:5173` 입니다.
+백엔드 개발 서버 주소는 `http://192.168.0.147:4011` 입니다.
 
 IP가 바뀌면 아래처럼 덮어쓸 수 있습니다.
 
@@ -39,6 +40,26 @@ flutter run \
   --dart-define=NURIM_API_BASE_URL=http://백엔드_IP:4011 \
   --dart-define=NAVER_CLIENT_SECRET=네이버_CLIENT_SECRET
 ```
+
+## Web UI 빌드 구분
+
+`web_ui`는 목적에 따라 빌드 출력 위치를 분리합니다.
+
+```bash
+cd /Users/smlee/project/ref/nurimAppDemo/web_ui
+
+# 로컬 개발 서버 실행
+npm run dev:lan
+
+# 별도 프론트 서버에 올릴 정적 파일 생성
+npm run build:web
+
+# Flutter shell에 내장할 WebView 파일 생성
+npm run build:shell
+```
+
+- `build:web`: `web_ui/dist`에 결과물을 생성합니다.
+- `build:shell`: `mobile_shell/assets/web`에 결과물을 생성합니다.
 
 ## 현재 포함된 화면
 

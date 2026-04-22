@@ -1,0 +1,10 @@
+services:
+  nurim-front:
+    build:
+      context: ./web_ui
+      dockerfile: Dockerfile
+    image: nurim-front:latest
+    container_name: nurim-front
+    restart: unless-stopped
+    ports:
+      - "3000:80"
