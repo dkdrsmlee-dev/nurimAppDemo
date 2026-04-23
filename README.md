@@ -64,6 +64,7 @@ npm run build:shell
 ## Jenkins 프론트 Docker 배포
 
 Windows 11 개발 서버의 Jenkins가 GitHub 소스를 받아 프론트 Docker 컨테이너를 배포합니다.
+Jenkins Job은 `Poll SCM`으로 GitHub main 브랜치 변경을 감지합니다.
 
 ```text
 GitHub main push
