@@ -6,6 +6,7 @@ COPY package*.json ./
 RUN npm ci
 
 COPY . .
+RUN npm run lint
 RUN npm run build:web
 
 FROM nginx:1.27-alpine

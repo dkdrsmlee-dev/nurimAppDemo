@@ -61,6 +61,60 @@ npm run build:shell
 - `build:web`: `web_ui/dist`에 결과물을 생성합니다.
 - `build:shell`: `mobile_shell/assets/web`에 결과물을 생성합니다.
 
+## Jenkins 프론트 Docker 배포
+
+Windows 11 개발 서버의 Jenkins가 GitHub 소스를 받아 프론트 Docker 컨테이너를 배포합니다.
+
+```text
+GitHub main push
+→ Jenkins checkout
+→ docker compose build
+→ npm run lint
+→ npm run build:web
+→ nurim-front 컨테이너 재기동
+→ http://192.168.0.147:3000 반영
+```
+
+Jenkins Pipeline Job 설정:
+
+```text
+Definition: Pipeline script from SCM
+SCM: Git
+Repository URL: https://github.com/dkdrsmlee-dev/nurimAppDemo.git
+Branch: main
+Script Path: Jenkinsfile
+```
+
+Jenkins가 Docker 명령을 실행할 수 있어야 합니다.
+
+```bash
+docker version
+docker compose version
+docker ps
+```
+
+수동 배포 확인 명령:
+
+```bash
+docker compose -f docker-compose.front.yml up -d --build
+```
+
+프론트 컨테이너 접속 주소:
+
+```text
+http://192.168.0.147:3000
+```
+
+앱에서 서버 프론트를 바라보게 실행:
+
+```bash
+cd /Users/smlee/project/ref/nurimAppDemo/mobile_shell
+flutter run \
+  --dart-define=NURIM_WEB_URL=http://192.168.0.147:3000 \
+  --dart-define=NURIM_API_BASE_URL=http://192.168.0.147:4011 \
+  --dart-define=NAVER_CLIENT_SECRET=네이버_CLIENT_SECRET
+```
+
 ## 현재 포함된 화면
 
 - Splash
