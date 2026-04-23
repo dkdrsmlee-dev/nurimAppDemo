@@ -1,5 +1,8 @@
 declare global {
   interface Window {
+    daum?: {
+      Postcode?: KakaoPostcodeConstructor;
+    };
     kakao?: {
       Postcode?: KakaoPostcodeConstructor;
     };
@@ -38,14 +41,14 @@ interface KakaoPostcodeConstructor {
 }
 
 const postcodeScriptUrl =
-  'https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+  'https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
 
 let loadPromise: Promise<KakaoPostcodeConstructor> | null = null;
 
 function readPostcodeConstructor() {
-  const Postcode = window.kakao?.Postcode;
+  const Postcode = window.daum?.Postcode ?? window.kakao?.Postcode;
   if (!Postcode) {
-    throw new Error('카카오 우편번호 서비스를 불러오지 못했습니다.');
+    throw new Error('Daum 우편번호 서비스를 불러오지 못했습니다.');
   }
 
   return Postcode;
@@ -56,7 +59,7 @@ export function loadKakaoPostcodeScript() {
     return Promise.reject(new Error('브라우저 환경에서만 주소검색을 사용할 수 있습니다.'));
   }
 
-  if (window.kakao?.Postcode) {
+  if (window.daum?.Postcode ?? window.kakao?.Postcode) {
     return Promise.resolve(readPostcodeConstructor());
   }
 
@@ -81,7 +84,7 @@ export function loadKakaoPostcodeScript() {
       existingScript.addEventListener('load', handleResolve, { once: true });
       existingScript.addEventListener(
         'error',
-        () => reject(new Error('카카오 우편번호 스크립트를 불러오지 못했습니다.')),
+        () => reject(new Error('Daum 우편번호 스크립트를 불러오지 못했습니다.')),
         { once: true },
       );
       return;
@@ -91,7 +94,7 @@ export function loadKakaoPostcodeScript() {
     script.src = postcodeScriptUrl;
     script.async = true;
     script.onload = handleResolve;
-    script.onerror = () => reject(new Error('카카오 우편번호 스크립트를 불러오지 못했습니다.'));
+    script.onerror = () => reject(new Error('Daum 우편번호 스크립트를 불러오지 못했습니다.'));
     document.head.appendChild(script);
   }).catch((error) => {
     loadPromise = null;
