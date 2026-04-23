@@ -7,8 +7,10 @@ pipeline {
   }
 
   environment {
-    COMPOSE_FILE = 'docker-compose.front.yml'
-    FRONT_SERVICE = 'nurim-front'
+    FRONT_IMAGE = 'nurim-front'
+    FRONT_CONTAINER = 'nurim-front'
+    FRONT_HOST_PORT = '3000'
+    FRONT_CONTAINER_PORT = '80'
   }
 
   stages {
@@ -21,34 +23,40 @@ pipeline {
     stage('Docker Check') {
       steps {
         sh 'docker version'
-        sh 'docker compose version'
         sh 'docker ps'
       }
     }
 
     stage('Build Front Image') {
       steps {
-        sh 'docker compose -f "$COMPOSE_FILE" build --pull "$FRONT_SERVICE"'
+        sh 'docker build --pull -t "$FRONT_IMAGE:latest" -f web_ui/Dockerfile web_ui'
       }
     }
 
     stage('Deploy Front Container') {
       steps {
-        sh 'docker compose -f "$COMPOSE_FILE" up -d --no-deps "$FRONT_SERVICE"'
+        sh '''
+          docker rm -f "$FRONT_CONTAINER" 2>/dev/null || true
+          docker run -d \
+            --name "$FRONT_CONTAINER" \
+            --restart unless-stopped \
+            -p "$FRONT_HOST_PORT:$FRONT_CONTAINER_PORT" \
+            "$FRONT_IMAGE:latest"
+        '''
       }
     }
 
     stage('Verify Front Container') {
       steps {
-        sh 'docker ps --filter "name=$FRONT_SERVICE" --filter "status=running" --format "{{.Names}}" | grep -x "$FRONT_SERVICE"'
-        sh 'docker port "$FRONT_SERVICE"'
+        sh 'docker inspect -f "{{.State.Running}}" "$FRONT_CONTAINER" | grep -x true'
+        sh 'docker port "$FRONT_CONTAINER" "$FRONT_CONTAINER_PORT"'
       }
     }
   }
 
   post {
     failure {
-      sh 'docker compose -f "$COMPOSE_FILE" logs --tail=120 "$FRONT_SERVICE" || true'
+      sh 'docker logs --tail=120 "$FRONT_CONTAINER" || true'
     }
   }
 }

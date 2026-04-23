@@ -68,7 +68,7 @@ Windows 11 개발 서버의 Jenkins가 GitHub 소스를 받아 프론트 Docker 
 ```text
 GitHub main push
 → Jenkins checkout
-→ docker compose build
+→ docker build
 → npm run lint
 → npm run build:web
 → nurim-front 컨테이너 재기동
@@ -89,14 +89,23 @@ Jenkins가 Docker 명령을 실행할 수 있어야 합니다.
 
 ```bash
 docker version
-docker compose version
 docker ps
 ```
+
+Jenkins 컨테이너에 `docker compose` 플러그인이 없어도 동작하도록 `Jenkinsfile`은 `docker build`, `docker rm`, `docker run`만 사용합니다.
 
 수동 배포 확인 명령:
 
 ```bash
 docker compose -f docker-compose.front.yml up -d --build
+```
+
+Jenkins와 같은 방식으로 compose 없이 수동 배포하려면 아래 명령을 사용할 수 있습니다.
+
+```bash
+docker build -t nurim-front:latest -f web_ui/Dockerfile web_ui
+docker rm -f nurim-front 2>/dev/null || true
+docker run -d --name nurim-front --restart unless-stopped -p 3000:80 nurim-front:latest
 ```
 
 프론트 컨테이너 접속 주소:
