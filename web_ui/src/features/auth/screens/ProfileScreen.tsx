@@ -7,6 +7,22 @@ import { submitSignupProfile } from '../../../shared/lib/signupApi';
 import type { ProfileDraft } from '../../../shared/types/app';
 import { useAppContext } from '../../../state/app/useAppContext';
 
+function toApiBirthDate(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  const koreanDateMatch = trimmed.match(/^(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일$/);
+  if (!koreanDateMatch) {
+    return trimmed;
+  }
+
+  const [, year, month, day] = koreanDateMatch;
+
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
 export function ProfileScreen() {
   const navigate = useNavigate();
   const { profile, signupToken, updateProfile } = useAppContext();
@@ -27,6 +43,7 @@ export function ProfileScreen() {
         zipCode: nextProfile.zipCode,
         address1: nextProfile.address1,
         address2: nextProfile.address2,
+        birthDate: toApiBirthDate(nextProfile.birthDate),
       });
       updateProfile(nextProfile);
       navigate('/auth/complete');

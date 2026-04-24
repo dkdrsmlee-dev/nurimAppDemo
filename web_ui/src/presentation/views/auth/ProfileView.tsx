@@ -36,7 +36,11 @@ export function ProfileView({
     setForm(initialProfile);
   }, [initialProfile]);
 
-  const canSave = form.zipCode.trim() !== '' && form.address1.trim() !== '' && form.address2.trim() !== '';
+  const canSave =
+    form.zipCode.trim() !== '' &&
+    form.address1.trim() !== '' &&
+    form.address2.trim() !== '' &&
+    form.birthDate.trim() !== '';
 
   const applyBirthDate = () => {
     const birthDate = `${selectedYear}년 ${selectedMonth}월 ${selectedDay}일`;

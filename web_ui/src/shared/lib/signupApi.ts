@@ -112,13 +112,14 @@ export async function submitSignupProfile(
     zipCode: string;
     address1: string;
     address2: string;
+    birthDate: string;
   },
 ) {
   return requestSignupJson<SignupProfilePayload>(
     '/api/v1/auth/signup/profile',
     signupToken,
     {
-      method: 'POST',
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
