@@ -81,6 +81,9 @@ input::placeholder {
 .phone-body {
   flex: 1;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .phone-footer {
@@ -600,6 +603,7 @@ input::placeholder {
 }
 
 .address-search-screen {
+  height: 100%;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -695,8 +699,8 @@ input::placeholder {
 }
 
 .postcode-shell--page {
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: 420px;
   margin-top: 0;
   display: flex;
   flex-direction: column;
@@ -726,8 +730,9 @@ input::placeholder {
 }
 
 .postcode-shell__frame--page {
-  flex: 1;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: 420px;
+  height: 100%;
   border-radius: 0;
 }
 

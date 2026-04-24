@@ -54,6 +54,70 @@ export function ProfileView({
 
     const postcodeContainer = postcodeContainerRef.current;
     let cancelled = false;
+    let protocolSyncTimer: number | null = null;
+
+    const getContainerHeight = () => {
+      if (!postcodeContainer) {
+        return 420;
+      }
+
+      const top = postcodeContainer.getBoundingClientRect().top;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+
+      return Math.max(Math.floor(viewportHeight - top - 24), 420);
+    };
+
+    const syncContainerHeight = () => {
+      if (!postcodeContainer) {
+        return 420;
+      }
+
+      const nextHeight = getContainerHeight();
+      postcodeContainer.style.height = `${nextHeight}px`;
+      return nextHeight;
+    };
+
+    const syncInnerPostcodeIframeProtocol = () => {
+      if (!postcodeContainer) {
+        return false;
+      }
+
+      const outerFrame = postcodeContainer.querySelector('iframe');
+      if (!(outerFrame instanceof HTMLIFrameElement)) {
+        return false;
+      }
+
+      const innerFrame =
+        outerFrame.contentDocument?.querySelector('#__kakao__viewerFrame_1') ?? null;
+      if (!(innerFrame instanceof HTMLIFrameElement)) {
+        return false;
+      }
+
+      if (!innerFrame.src || innerFrame.src === 'about:blank') {
+        return false;
+      }
+
+      if (innerFrame.src.startsWith('http://postcode.map.kakao.com/')) {
+        innerFrame.src = innerFrame.src.replace(/^http:/, 'https:');
+        return true;
+      }
+
+      return innerFrame.src.startsWith('https://postcode.map.kakao.com/');
+    };
+
+    const startProtocolSync = () => {
+      let attempts = 0;
+      protocolSyncTimer = window.setInterval(() => {
+        attempts += 1;
+
+        if (syncInnerPostcodeIframeProtocol() || attempts >= 20) {
+          if (protocolSyncTimer !== null) {
+            window.clearInterval(protocolSyncTimer);
+            protocolSyncTimer = null;
+          }
+        }
+      }, 250);
+    };
 
     const handleComplete = (data: KakaoPostcodeData) => {
       if (cancelled) {
@@ -79,6 +143,7 @@ export function ProfileView({
       setAddressSearchError('');
 
       try {
+        const minHeight = syncContainerHeight();
         const Postcode = await loadKakaoPostcodeScript();
         if (cancelled || !postcodeContainer) {
           return;
@@ -88,17 +153,21 @@ export function ProfileView({
         new Postcode({
           oncomplete: handleComplete,
           onresize: (size) => {
-            postcodeContainer.style.height = `${Math.max(size.height, 420)}px`;
+            postcodeContainer.style.height = `${Math.max(size.height, minHeight)}px`;
           },
           width: '100%',
-          height: '100%',
+          height: `${minHeight}px`,
           maxSuggestItems: 5,
         }).embed(postcodeContainer, {
           width: '100%',
-          height: '100%',
+          height: `${minHeight}px`,
           autoClose: false,
           maxSuggestItems: 5,
         });
+
+        // Daum postcode still creates an inner http iframe on non-https origins.
+        // Promote it to https so Samsung Browser/WebView renders the actual search UI.
+        startProtocolSync();
       } catch (error) {
         if (!cancelled) {
           const message =
@@ -114,12 +183,23 @@ export function ProfileView({
       }
     };
 
+    const handleResize = () => {
+      syncContainerHeight();
+    };
+
+    window.addEventListener('resize', handleResize);
     void mountPostcode();
 
     return () => {
       cancelled = true;
+      if (protocolSyncTimer !== null) {
+        window.clearInterval(protocolSyncTimer);
+        protocolSyncTimer = null;
+      }
+      window.removeEventListener('resize', handleResize);
       if (postcodeContainer) {
         postcodeContainer.innerHTML = '';
+        postcodeContainer.style.height = '';
       }
     };
   }, [showAddressSearch]);
