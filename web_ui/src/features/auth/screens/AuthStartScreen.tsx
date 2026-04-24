@@ -40,26 +40,6 @@ export function AuthStartScreen() {
     void loadLoginConfig();
   }, []);
 
-  useEffect(() => {
-    const handleFocus = () => {
-      void loadLoginConfig();
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        void loadLoginConfig();
-      }
-    };
-
-    window.addEventListener('focus', handleFocus);
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
-
   const handleStart = async (provider: SocialProvider) => {
     const providerEnabled = provider === 'kakao' ? kakaoEnabled : naverEnabled;
     if (!providerEnabled) {
