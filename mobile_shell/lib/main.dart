@@ -28,6 +28,11 @@ const _naverClientName = String.fromEnvironment(
   'NAVER_CLIENT_NAME',
   defaultValue: _defaultNaverClientName,
 );
+const _defaultNaverIosUrlScheme = 'com.dkdr.nurimdemo';
+const _naverIosUrlScheme = String.fromEnvironment(
+  'NAVER_IOS_URL_SCHEME',
+  defaultValue: _defaultNaverIosUrlScheme,
+);
 const _naverAuthChannel = MethodChannel('nurimdemo/naver_auth');
 
 void main() {
@@ -569,7 +574,7 @@ class _NurimShellPageState extends State<NurimShellPage> {
     required String providerAccessToken,
   }) async {
     final endpoint = Uri.parse(
-      '$_apiBaseUrl/api/v1/auth/oauth/${provider.toLowerCase()}',
+      '$_apiBaseUrl/api/v1/auth/social/${provider.toLowerCase()}',
     );
     debugPrint('[social-backend][$provider] POST $endpoint');
     final client = HttpClient();
@@ -624,10 +629,6 @@ class _NurimShellPageState extends State<NurimShellPage> {
   }
 
   Future<Map<String, String?>> _loginWithNaverSdk() async {
-    if (!Platform.isAndroid) {
-      throw Exception('현재 네이버 로그인은 Android에서만 연결되어 있습니다.');
-    }
-
     debugPrint(
       '[social][naver] invoking native channel '
       'clientId=$_naverClientId clientName=$_naverClientName',
@@ -637,6 +638,7 @@ class _NurimShellPageState extends State<NurimShellPage> {
           'clientId': _naverClientId,
           'clientSecret': _naverClientSecret,
           'clientName': _naverClientName,
+          'urlScheme': _naverIosUrlScheme,
         });
 
     if (result == null || result.isEmpty) {
