@@ -29,6 +29,22 @@ type CompleteSignupPayload = {
 
 const successCode = 'COMMON.SUCCESS';
 
+function unwrapResponseData<T>(payload: ApiEnvelope<T>) {
+  if (payload.data !== undefined) {
+    return payload.data;
+  }
+
+  const envelopeKeys = ['code', 'msg', 'message', 'data'];
+  const payloadKeys = Object.keys(payload);
+  const hasOnlyEnvelopeKeys = payloadKeys.every((key) => envelopeKeys.includes(key));
+
+  if (!hasOnlyEnvelopeKeys && payloadKeys.length > 0) {
+    return payload as T;
+  }
+
+  return {} as T;
+}
+
 function extractErrorMessage(payload: unknown, fallback: string) {
   if (!payload || typeof payload !== 'object') {
     return fallback;
@@ -77,7 +93,7 @@ async function requestSignupJson<T>(
     throw new Error(extractErrorMessage(responsePayload, fallbackMessage));
   }
 
-  return responsePayload.data ?? ({} as T);
+  return unwrapResponseData(responsePayload);
 }
 
 export function verifySignupPhone(signupToken: string) {
