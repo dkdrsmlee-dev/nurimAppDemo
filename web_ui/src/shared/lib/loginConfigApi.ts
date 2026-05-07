@@ -59,7 +59,7 @@ function parseLoginConfig(payload: unknown): LoginConfig {
 }
 
 export async function fetchLoginConfig() {
-  const response = await fetch(buildApiUrl('/api/v1/auth/login/config'), {
+  const response = await fetch(buildApiUrl('/api/v1/auth/config'), {
     headers: {
       Accept: 'application/json',
     },
