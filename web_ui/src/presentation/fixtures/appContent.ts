@@ -78,20 +78,20 @@ export const noticeItems = [
 
 export const eventCards: EventCard[] = [
   {
-    title: 'NURIM launch package',
-    description: '오픈 기념 배너와 프로모션을 배치할 영역입니다.',
+    title: '매일 매일 출석체크 하면 리워드가 매일 팡팡',
+    description: '출석체크 후 리워드를 지급하는 이벤트 상세로 이동할 수 있습니다.',
   },
   {
-    title: 'Admin event block',
-    description: '관리자 공지 또는 이벤트 이미지를 연결할 수 있습니다.',
+    title: '마이펫 촬영하면 매일 리워드가 지급됩니다.',
+    description: '일별 촬영 미션 완료 후 리워드를 받는 이벤트 상세로 이동할 수 있습니다.',
   },
 ];
 
 export const quickTabs: QuickTabItem[] = [
   { key: 'home', label: 'HOME' },
-  { key: 'news', label: '소식' },
-  { key: 'my', label: 'My' },
-  { key: 'benefit', label: '혜택' },
+  { key: 'news', label: '메뉴_A' },
+  { key: 'my', label: '메뉴_B' },
+  { key: 'benefit', label: '메뉴_C' },
   { key: 'event', label: '이벤트' },
 ];
 
