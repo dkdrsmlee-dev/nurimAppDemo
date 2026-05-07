@@ -18,11 +18,14 @@ html,
 body,
 #root {
   margin: 0;
+  height: 100%;
   min-height: 100%;
 }
 
 body {
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow: hidden;
   background:
     radial-gradient(circle at top left, rgba(110, 123, 251, 0.18), transparent 30%),
     linear-gradient(180deg, #f2f5fb 0%, #e6ebf4 100%);
@@ -55,15 +58,24 @@ input::placeholder {
 }
 
 .app-stage {
+  height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   justify-content: center;
   padding: 32px 16px;
+  overflow: hidden;
 }
 
 .phone-viewport {
   width: min(100%, 420px);
+  height: calc(100vh - 64px);
+  height: calc(100dvh - 64px);
   min-height: calc(100vh - 64px);
+  min-height: calc(100dvh - 64px);
+  max-height: calc(100vh - 64px);
+  max-height: calc(100dvh - 64px);
   position: relative;
   display: flex;
   flex-direction: column;
@@ -84,6 +96,7 @@ input::placeholder {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow: hidden;
 }
 
 .phone-footer {
@@ -91,6 +104,9 @@ input::placeholder {
   border-top: 1px solid rgba(17, 24, 39, 0.08);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
 }
 
 .screen-content {
@@ -763,39 +779,133 @@ input::placeholder {
   color: #667085;
 }
 
-.home-topbar,
-.brand-inline {
+.home-screen {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+
+.home-header {
+  min-height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 6px;
 }
 
-.brand-inline {
-  gap: 12px;
-  justify-content: flex-start;
-}
-
-.icon-button {
-  min-height: 36px;
-  border-radius: 999px;
-  padding: 0 14px;
-  background: rgba(17, 17, 17, 0.08);
-  color: #111827;
-}
-
-.hero-banner {
-  padding: 22px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, #dfe6ff 0%, #ffffff 100%);
-}
-
-.hero-banner__label {
+.home-brand-button {
   display: inline-flex;
-  padding: 6px 10px;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: #111827;
+  padding: 0;
+}
+
+.home-brand-mark {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: #101828;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: lowercase;
+}
+
+.home-brand-text {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.home-header-actions {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.home-header-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
-  background: rgba(17, 17, 17, 0.08);
-  font-size: 12px;
+  background: #f2f4f7;
+  font-size: 18px;
+}
+
+.home-summary-card {
+  padding: 20px;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.home-summary-card__eyebrow {
+  display: inline-flex;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #364152;
+  font-size: 11px;
   font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.home-summary-card h1 {
+  margin: 12px 0 8px;
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.home-summary-card p {
+  margin: 0;
+  color: #667085;
+}
+
+.home-hero-card {
+  padding: 14px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.home-hero-card__media {
+  min-height: 210px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 30% 32%, rgba(255, 255, 255, 0.35), transparent 17%),
+    linear-gradient(145deg, #d1d5db 0%, #e5e7eb 55%, #d1d5db 100%);
+}
+
+.home-carousel-dots {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.home-carousel-dots__item {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #d0d5dd;
+}
+
+.home-carousel-dots__item--active {
+  width: 20px;
+  background: #111827;
 }
 
 .section-card,
@@ -805,41 +915,96 @@ input::placeholder {
   gap: 12px;
 }
 
+.home-card-actions {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+}
+
 .simple-list {
   margin: 0;
   padding-left: 18px;
   color: #475467;
 }
 
+.home-benefit-card {
+  display: grid;
+  grid-template-columns: 1fr 96px;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.home-benefit-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.home-benefit-card__eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  color: #111827;
+}
+
+.home-benefit-card strong {
+  font-size: 18px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.home-benefit-card p {
+  margin: 0;
+  color: #4b5563;
+}
+
+.home-benefit-card__thumb {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  border: 1px solid #eaecf0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f4f7;
+  color: #98a2b3;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .bottom-nav {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
 }
 
 .bottom-nav__item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 5px;
   min-height: 58px;
-  border-radius: 18px;
+  border-radius: 14px;
   background: transparent;
-  color: #667085;
+  color: #98a2b3;
   font-size: 11px;
+  font-weight: 700;
 }
 
 .bottom-nav__item--active {
-  background: rgba(17, 17, 17, 0.08);
   color: #111827;
 }
 
 .bottom-nav__icon {
   width: 18px;
   height: 18px;
+  border: 1.7px solid currentColor;
   border-radius: 6px;
-  background: currentColor;
-  opacity: 0.4;
+  background: transparent;
 }
 
 @media (max-width: 480px) {
@@ -849,7 +1014,12 @@ input::placeholder {
 
   .phone-viewport {
     width: 100%;
+    height: 100vh;
+    height: 100dvh;
     min-height: 100vh;
+    min-height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
   }
 }
