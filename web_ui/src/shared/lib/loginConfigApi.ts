@@ -1,12 +1,10 @@
 import { buildApiUrl } from '../config/api';
 import type { LoginConfig, SocialProvider } from '../types/app';
-
-type ApiEnvelope<T> = {
-  code?: string;
-  msg?: string;
-  message?: string;
-  data?: T;
-};
+import {
+  ensureEnvelopeSuccess,
+  extractEnvelopeMessage,
+  type ApiEnvelope,
+} from './apiEnvelope';
 
 type RawLoginConfig = {
   idLogin?: unknown;
@@ -15,30 +13,13 @@ type RawLoginConfig = {
 };
 
 const providerKeys: SocialProvider[] = ['kakao', 'naver'];
-const successCode = 'COMMON.SUCCESS';
-
-function extractErrorMessage(payload: unknown, fallback: string) {
-  if (!payload || typeof payload !== 'object') {
-    return fallback;
-  }
-
-  const message = (payload as ApiEnvelope<unknown>).msg ?? (payload as ApiEnvelope<unknown>).message;
-  if (typeof message === 'string' && message.trim()) {
-    return message.trim();
-  }
-
-  return fallback;
-}
-
 function parseLoginConfig(payload: unknown): LoginConfig {
   if (!payload || typeof payload !== 'object') {
     throw new Error('로그인 설정 응답 형식이 올바르지 않습니다.');
   }
 
   const envelope = payload as ApiEnvelope<RawLoginConfig>;
-  if (envelope.code && envelope.code !== successCode) {
-    throw new Error(extractErrorMessage(payload, '로그인 설정을 불러오지 못했습니다.'));
-  }
+  ensureEnvelopeSuccess(envelope, '로그인 설정을 불러오지 못했습니다.');
 
   const data = envelope.data;
   if (!data || typeof data !== 'object') {
@@ -69,7 +50,7 @@ export async function fetchLoginConfig() {
   const payload = (await response.json()) as unknown;
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(payload, '로그인 설정을 불러오지 못했습니다.'));
+    throw new Error(extractEnvelopeMessage(payload, '로그인 설정을 불러오지 못했습니다.'));
   }
 
   return parseLoginConfig(payload);

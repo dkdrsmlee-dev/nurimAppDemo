@@ -6,6 +6,7 @@ import type {
   SocialProvider,
 } from '../shared/types/app';
 
+import { BRIDGE_EVENT } from './eventTypes';
 import { socialLoginProfiles } from './mockBridgeData';
 
 declare global {
@@ -104,7 +105,7 @@ const waitForSocialLoginResult = (provider: SocialProvider) =>
 
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<NativeEvent<SocialLoginCallbackPayload>>).detail;
-      if (detail.type !== 'socialLoginResult') {
+      if (detail.type !== BRIDGE_EVENT.socialLoginResult) {
         return;
       }
 
@@ -183,12 +184,12 @@ export const nativeBridge = {
   },
 
   ready() {
-    postMessage({ type: 'ready' });
+    postMessage({ type: BRIDGE_EVENT.ready });
 
     if (!hasNativeBridge()) {
       window.setTimeout(() => {
         emitNativeEvent<BootstrapPayload>({
-          type: 'bootstrap',
+          type: BRIDGE_EVENT.bootstrap,
           payload: { token: readStoredToken() },
         });
       }, 180);
@@ -197,12 +198,12 @@ export const nativeBridge = {
 
   async saveToken(token: string) {
     writeStoredToken(token);
-    postMessage({ type: 'saveToken', payload: { token } });
+    postMessage({ type: BRIDGE_EVENT.saveToken, payload: { token } });
   },
 
   async clearToken() {
     writeStoredToken(null);
-    postMessage({ type: 'clearToken' });
+    postMessage({ type: BRIDGE_EVENT.clearToken });
   },
 
   async startSocialLogin(
@@ -212,14 +213,14 @@ export const nativeBridge = {
       return createFallbackSocialLoginResult(provider);
     }
 
-    postMessage({ type: 'socialLoginRequested', payload: { provider } });
+    postMessage({ type: BRIDGE_EVENT.socialLoginRequested, payload: { provider } });
     const payload = await waitForSocialLoginResult(provider);
 
     return buildSocialLoginResult(provider, payload);
   },
 
   async startIdentityVerification() {
-    postMessage({ type: 'identityVerificationRequested' });
+    postMessage({ type: BRIDGE_EVENT.identityVerificationRequested });
     await wait(700);
 
     return {

@@ -1,11 +1,10 @@
 import { buildApiUrl } from '../config/api';
-
-type ApiEnvelope<T> = {
-  code?: string;
-  msg?: string;
-  message?: string;
-  data?: T;
-};
+import {
+  ensureEnvelopeSuccess,
+  extractEnvelopeMessage,
+  type ApiEnvelope,
+  unwrapEnvelopeData,
+} from './apiEnvelope';
 
 type SignupProfilePayload = {
   nextStep?: string;
@@ -27,47 +26,6 @@ type CompleteSignupPayload = {
   refreshToken?: string;
 };
 
-const successCode = 'COMMON.SUCCESS';
-
-function unwrapResponseData<T>(payload: ApiEnvelope<T>) {
-  if (payload.data !== undefined) {
-    return payload.data;
-  }
-
-  const envelopeKeys = ['code', 'msg', 'message', 'data'];
-  const payloadKeys = Object.keys(payload);
-  const hasOnlyEnvelopeKeys = payloadKeys.every((key) => envelopeKeys.includes(key));
-
-  if (!hasOnlyEnvelopeKeys && payloadKeys.length > 0) {
-    return payload as T;
-  }
-
-  return {} as T;
-}
-
-function extractErrorMessage(payload: unknown, fallback: string) {
-  if (!payload || typeof payload !== 'object') {
-    return fallback;
-  }
-
-  const message = (payload as ApiEnvelope<unknown>).msg ?? (payload as ApiEnvelope<unknown>).message;
-  if (typeof message === 'string' && message.trim()) {
-    return message.trim();
-  }
-
-  const nestedData = (payload as ApiEnvelope<unknown>).data;
-  if (nestedData && typeof nestedData === 'object') {
-    const nestedMessage =
-      (nestedData as { msg?: unknown; message?: unknown }).msg ??
-      (nestedData as { msg?: unknown; message?: unknown }).message;
-    if (typeof nestedMessage === 'string' && nestedMessage.trim()) {
-      return nestedMessage.trim();
-    }
-  }
-
-  return fallback;
-}
-
 async function requestSignupJson<T>(
   path: string,
   signupToken: string,
@@ -86,14 +44,12 @@ async function requestSignupJson<T>(
   const responsePayload = (await response.json()) as ApiEnvelope<T>;
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(responsePayload, fallbackMessage));
+    throw new Error(extractEnvelopeMessage(responsePayload, fallbackMessage));
   }
 
-  if (responsePayload.code && responsePayload.code !== successCode) {
-    throw new Error(extractErrorMessage(responsePayload, fallbackMessage));
-  }
+  ensureEnvelopeSuccess(responsePayload, fallbackMessage);
 
-  return unwrapResponseData(responsePayload);
+  return unwrapEnvelopeData(responsePayload);
 }
 
 export function verifySignupPhone(signupToken: string) {

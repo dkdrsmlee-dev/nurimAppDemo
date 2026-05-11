@@ -1,5 +1,6 @@
 import { useEffect, useState, type PropsWithChildren } from 'react';
 
+import { BRIDGE_EVENT } from '../../bridge/eventTypes';
 import { nativeBridge } from '../../bridge/nativeBridge';
 import type { BootstrapPayload, HomeTab, ProfileDraft, TermsState } from '../../shared/types/app';
 import { AppContext, type AppContextValue } from './AppContextObject';
@@ -74,7 +75,7 @@ export function AppProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     const unsubscribe = nativeBridge.subscribe((event) => {
-      if (event.type !== 'bootstrap') {
+      if (event.type !== BRIDGE_EVENT.bootstrap) {
         return;
       }
 

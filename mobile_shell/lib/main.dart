@@ -68,7 +68,7 @@ class NurimShellPage extends StatefulWidget {
 
 class _NurimShellPageState extends State<NurimShellPage> {
   static const _tokenStorageKey = 'nurim.demo.jwt';
-  static const _defaultDevServerUrl = 'http://192.168.0.157:5173';
+  static const _defaultDevServerUrl = 'http://192.168.0.147:3000';
   static const _defaultApiBaseUrl = 'http://192.168.0.147:4011';
   static const _callbackScheme = 'nurimdemo';
   static const _callbackHost = 'auth';
@@ -150,6 +150,7 @@ class _NurimShellPageState extends State<NurimShellPage> {
 
   Future<void> _loadReactApp() async {
     final devServerUrl = _devServerUrl;
+    debugPrint('[shell] loading web url=$devServerUrl apiBase=$_apiBaseUrl');
 
     if (devServerUrl.isEmpty) {
       if (!mounted) {

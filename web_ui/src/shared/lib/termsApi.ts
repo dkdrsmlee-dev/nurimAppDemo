@@ -1,14 +1,10 @@
 import { buildApiUrl } from '../config/api';
 import type { ActiveTerm, TermAgreement, TermsCategory } from '../types/content';
-
-type ApiEnvelope<T> = {
-  code?: string;
-  msg?: string;
-  message?: string;
-  data?: T;
-};
-
-const successCode = 'COMMON.SUCCESS';
+import {
+  ensureEnvelopeSuccess,
+  extractEnvelopeMessage,
+  type ApiEnvelope,
+} from './apiEnvelope';
 
 function normalizeTerm(raw: Record<string, unknown>): ActiveTerm {
   return {
@@ -28,38 +24,6 @@ function normalizeTerms(rawTerms: unknown[]) {
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
     .map(normalizeTerm)
     .sort((left, right) => left.sortNo - right.sortNo);
-}
-
-function extractErrorMessage(payload: unknown, fallback: string) {
-  if (!payload || typeof payload !== 'object') {
-    return fallback;
-  }
-
-  const message = (payload as ApiEnvelope<unknown>).msg ?? (payload as ApiEnvelope<unknown>).message;
-  if (typeof message === 'string' && message.trim()) {
-    return message.trim();
-  }
-
-  const nestedData = (payload as ApiEnvelope<unknown>).data;
-  if (nestedData && typeof nestedData === 'object') {
-    const nestedMessage = (nestedData as { msg?: unknown; message?: unknown }).msg ?? (nestedData as { msg?: unknown; message?: unknown }).message;
-    if (typeof nestedMessage === 'string' && nestedMessage.trim()) {
-      return nestedMessage.trim();
-    }
-  }
-
-  return fallback;
-}
-
-function ensureSuccessCode(payload: unknown, fallback: string) {
-  if (!payload || typeof payload !== 'object') {
-    return;
-  }
-
-  const code = (payload as ApiEnvelope<unknown>).code;
-  if (code && code !== successCode) {
-    throw new Error(extractErrorMessage(payload, fallback));
-  }
 }
 
 function parseTermsPayload(payload: unknown, categories: TermsCategory[]): ActiveTerm[] {
@@ -107,10 +71,10 @@ export async function fetchActiveTerms(categories: TermsCategory[] = []) {
   const payload = (await response.json()) as unknown;
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(payload, '약관 목록을 불러오지 못했습니다.'));
+    throw new Error(extractEnvelopeMessage(payload, '약관 목록을 불러오지 못했습니다.'));
   }
 
-  ensureSuccessCode(payload, '약관 목록을 불러오지 못했습니다.');
+  ensureEnvelopeSuccess(payload, '약관 목록을 불러오지 못했습니다.');
   return parseTermsPayload(payload, categories);
 }
 
@@ -130,9 +94,9 @@ export async function submitSignupTerms(signupToken: string, agreements: TermAgr
   const payload = (await response.json()) as unknown;
 
   if (!response.ok) {
-    throw new Error(extractErrorMessage(payload, '약관 동의 저장에 실패했습니다.'));
+    throw new Error(extractEnvelopeMessage(payload, '약관 동의 저장에 실패했습니다.'));
   }
 
-  ensureSuccessCode(payload, '약관 동의 저장에 실패했습니다.');
+  ensureEnvelopeSuccess(payload, '약관 동의 저장에 실패했습니다.');
   return payload;
 }
